@@ -10,7 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://developer.dji.com/maven/' }
+        maven { url = uri("https://developer.dji.com/maven/") }
     }
 }
 
