@@ -11,6 +11,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
+        // DJI SDK V5 repositories
+        maven { url = uri("https://developer.dji.com/maven") }
+        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
     }
 }
 
