@@ -30,6 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DJIMini3ActiveTrack"
         android:usesCleartextTraffic="true"
+        tools:replace="android:usesCleartextTraffic"
         tools:targetApi="31">
 
         <!-- DJI SDK V5 -->
