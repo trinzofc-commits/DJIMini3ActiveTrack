@@ -2,7 +2,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://developer.dji.com/maven/") }
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.2.0")

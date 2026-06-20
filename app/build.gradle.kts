@@ -15,6 +15,17 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters += "arm64-v8a"
+        }
+    }
+    packaging {
+        jniLibs {
+            pickFirsts += setOf(
+                "lib/arm64-v8a/libc++_shared.so",
+                "lib/armeabi-v7a/libc++_shared.so"
+            )
+        }
     }
 
     buildTypes {
@@ -41,9 +52,9 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    // DJI SDK V5
-    implementation("com.dji:dji-sdk-v5:5.10.0")
-    implementation("com.dji:dji-sdk-v5-uxsdk:5.10.0")
+    // DJI SDK V5 - correct artifact IDs
+    implementation("com.dji:dji-sdk-v5-aircraft:5.10.0")
+    compileOnly("com.dji:dji-sdk-v5-aircraft-provided:5.10.0")
 
     // Google ML Kit for Object Detection and Tracking
     implementation("com.google.mlkit:object-detection:17.0.1")
