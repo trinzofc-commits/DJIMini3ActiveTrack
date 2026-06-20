@@ -10,7 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://arsenal.dji.com/artifactory/maven-releases") }
+        maven { url = uri("https://developer.dji.com/maven2/") }
         maven { url = uri("https://jitpack.io") }
     }
 }
