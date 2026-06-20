@@ -2,7 +2,6 @@ package com.example.djimini3activetrack
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -11,10 +10,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import dji.v5.common.SDKManager
-import dji.v5.common.SDKRegistrationEvent
-import dji.v5.common.SDKRegistrationState
-import dji.v5.manager.SDKManagerCallback
+import dji.v5.common.error.IDJIError
+import dji.v5.common.register.DJISDKInitEvent
+import dji.v5.manager.SDKManager
+import dji.v5.manager.interfaces.SDKManagerCallback
 
 class MainActivity : AppCompatActivity() {
 
@@ -64,41 +63,44 @@ class MainActivity : AppCompatActivity() {
 
     private fun registerApp() {
         SDKManager.getInstance().init(this, object : SDKManagerCallback {
-            override fun onInitProcess(event: SDKRegistrationEvent, state: SDKRegistrationState) {
-                if (state == SDKRegistrationState.SUCCEEDED) {
+            override fun onInitProcess(event: DJISDKInitEvent, totalProcess: Int) {
+                if (event == DJISDKInitEvent.INITIALIZE_COMPLETE) {
+                    SDKManager.getInstance().registerApp()
                     runOnUiThread {
-                        statusTextView.text = "SDK Registered Successfully"
-                        Toast.makeText(this@MainActivity, "SDK Registered", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    runOnUiThread {
-                        statusTextView.text = "SDK Registration Failed: ${state.name}"
+                        statusTextView.text = "SDK Initialized, registering..."
                     }
                 }
             }
 
             override fun onRegisterSuccess() {
                 Log.d(TAG, "onRegisterSuccess")
+                runOnUiThread {
+                    statusTextView.text = "SDK Registered Successfully"
+                    Toast.makeText(this@MainActivity, "SDK Registered", Toast.LENGTH_SHORT).show()
+                }
             }
 
-            override fun onRegisterFailure(error: dji.v5.common.error.IDJIError) {
+            override fun onRegisterFailure(error: IDJIError) {
                 Log.d(TAG, "onRegisterFailure: ${error.description()}")
+                runOnUiThread {
+                    statusTextView.text = "Registration Failed: ${error.description()}"
+                }
             }
 
-            override fun onProductDisconnect(product: Int) {
+            override fun onProductDisconnect(productId: Int) {
                 Log.d(TAG, "onProductDisconnect")
             }
 
-            override fun onProductConnect(product: Int) {
+            override fun onProductConnect(productId: Int) {
                 Log.d(TAG, "onProductConnect")
             }
 
-            override fun onProductChanged(product: Int) {
+            override fun onProductChanged(productId: Int) {
                 Log.d(TAG, "onProductChanged")
             }
 
             override fun onDatabaseDownloadProgress(current: Long, total: Long) {
-                Log.d(TAG, "onDatabaseDownloadProgress")
+                Log.d(TAG, "onDatabaseDownloadProgress: $current/$total")
             }
         })
     }
