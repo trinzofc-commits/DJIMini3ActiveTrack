@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?>\n<full-backup-content xmlns:android="http://schemas.android.com/apk/res/android">\n    <exclude domain="database" />\n    <exclude domain="sharedprefs" />\n    <exclude domain="external" />\n</full-backup-content>

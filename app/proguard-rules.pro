@@ -1,0 +1,1 @@
+# Add project specific ProGuard rules here.\n# By default, the flags in progard-android.txt are applied automatically and should not be modified here.\n# For more details, see\n#   http://developer.android.com/guide/developing/tools/proguard.html
