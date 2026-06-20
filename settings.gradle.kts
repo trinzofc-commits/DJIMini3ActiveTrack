@@ -10,7 +10,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://artifactory.djisdk.com/artifactory/maven-releases") }
         maven { url = uri("https://jitpack.io") }
     }
 }
