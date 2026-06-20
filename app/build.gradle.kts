@@ -42,8 +42,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // DJI SDK V5
-    implementation("com.dji:dji-sdk-v5:5.7.0")
-    implementation("com.dji:dji-sdk-v5-uxsdk:5.7.0")
+    implementation("com.dji:dji-sdk-v5:5.10.0")
+    implementation("com.dji:dji-sdk-v5-uxsdk:5.10.0")
 
     // Google ML Kit for Object Detection and Tracking
     implementation("com.google.mlkit:object-detection:17.0.1")
