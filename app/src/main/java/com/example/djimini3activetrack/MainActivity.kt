@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,9 @@ import dji.v5.common.error.IDJIError
 import dji.v5.common.register.DJISDKInitEvent
 import dji.v5.manager.SDKManager
 import dji.v5.manager.interfaces.SDKManagerCallback
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -56,6 +60,8 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_CODE = 101
 
     private lateinit var statusTextView: TextView
+    private lateinit var logTextView: TextView
+    private lateinit var logScrollView: ScrollView
     private lateinit var connectButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,48 +69,92 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         statusTextView = findViewById(R.id.statusTextView)
+        logTextView = findViewById(R.id.logTextView)
+        logScrollView = findViewById(R.id.logScrollView)
         connectButton = findViewById(R.id.connectButton)
+
+        addLog("App Started")
+        addLog("Device: ${Build.MANUFACTURER} ${Build.MODEL}, Android ${Build.VERSION.RELEASE}")
 
         checkAndRequestPermissions()
 
         connectButton.setOnClickListener {
+            addLog("Connect Button Clicked")
             registerApp()
         }
 
-        // Xử lý khi app được mở thông qua USB Accessory Attached intent
         handleIntent(intent)
+    }
+
+    private fun addLog(message: String) {
+        val timestamp = SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(Date())
+        val logLine = "[$timestamp] $message\n"
+        Log.d(TAG, message)
+        runOnUiThread {
+            logTextView.append(logLine)
+            logScrollView.post {
+                logScrollView.fullScroll(ScrollView.FOCUS_DOWN)
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        addLog("onNewIntent received")
         handleIntent(intent)
     }
 
     private fun handleIntent(intent: Intent?) {
-        if (intent != null && UsbManager.ACTION_USB_ACCESSORY_ATTACHED == intent.action) {
-            Log.d(TAG, "USB Accessory Attached Intent received")
-            // Tự động thử đăng ký khi nhận được intent USB
+        if (intent == null) {
+            addLog("Intent is null")
+            return
+        }
+        addLog("Action: ${intent.action}")
+        if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED == intent.action) {
+            addLog("USB Accessory Attached detected!")
+            val accessory = intent.getParcelableExtra<android.hardware.usb.UsbAccessory>(UsbManager.EXTRA_ACCESSORY)
+            addLog("Accessory: ${accessory?.manufacturer} ${accessory?.model}")
             registerApp()
         }
     }
 
     private fun checkAndRequestPermissions() {
         val missingPermissions = REQUIRED_PERMISSIONS.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+            val isGranted = ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+            if (!isGranted) addLog("Missing Permission: $it")
+            !isGranted
         }
 
         if (missingPermissions.isNotEmpty()) {
+            addLog("Requesting ${missingPermissions.size} permissions...")
             ActivityCompat.requestPermissions(this, missingPermissions.toTypedArray(), REQUEST_CODE)
+        } else {
+            addLog("All permissions already granted")
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE) {
+            addLog("Permission request result received")
+            grantResults.forEachIndexed { index, result ->
+                if (result == PackageManager.PERMISSION_GRANTED) {
+                    addLog("Granted: ${permissions[index]}")
+                } else {
+                    addLog("DENIED: ${permissions[index]}")
+                }
+            }
         }
     }
 
     private fun registerApp() {
         try {
-            statusTextView.text = "Initializing SDK..."
+            addLog("Starting SDK Initialization...")
             SDKManager.getInstance().init(this, object : SDKManagerCallback {
                 override fun onInitProcess(event: DJISDKInitEvent, totalProcess: Int) {
-                    Log.d(TAG, "onInitProcess: $event")
+                    addLog("SDK Init Process: $event ($totalProcess)")
                     if (event == DJISDKInitEvent.INITIALIZE_COMPLETE) {
+                        addLog("Initialization Complete, now registering App...")
                         SDKManager.getInstance().registerApp()
                         runOnUiThread {
                             statusTextView.text = "SDK Initialized, registering..."
@@ -113,7 +163,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onRegisterSuccess() {
-                    Log.d(TAG, "onRegisterSuccess")
+                    addLog("SDK REGISTER SUCCESS!")
                     runOnUiThread {
                         statusTextView.text = "SDK Registered Successfully"
                         Toast.makeText(this@MainActivity, "SDK Registered", Toast.LENGTH_SHORT).show()
@@ -121,39 +171,46 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onRegisterFailure(error: IDJIError) {
-                    Log.d(TAG, "onRegisterFailure: ${error.description()}")
+                    addLog("SDK REGISTER FAILURE: ${error.description()} (Code: ${error.errorCode()})")
                     runOnUiThread {
                         statusTextView.text = "Registration Failed: ${error.description()}"
-                        Toast.makeText(this@MainActivity, "Registration Failed: ${error.description()}", Toast.LENGTH_LONG).show()
                     }
                 }
 
                 override fun onProductDisconnect(productId: Int) {
-                    Log.d(TAG, "onProductDisconnect: $productId")
+                    addLog("Product Disconnected: $productId")
                     runOnUiThread {
                         statusTextView.text = "Product Disconnected"
                     }
                 }
 
                 override fun onProductConnect(productId: Int) {
-                    Log.d(TAG, "onProductConnect: $productId")
+                    addLog("Product Connected! ID: $productId")
                     runOnUiThread {
                         statusTextView.text = "Product Connected: $productId"
                     }
                 }
 
                 override fun onProductChanged(productId: Int) {
-                    Log.d(TAG, "onProductChanged: $productId")
+                    addLog("Product Changed to: $productId")
                 }
 
                 override fun onDatabaseDownloadProgress(current: Long, total: Long) {
-                    Log.d(TAG, "onDatabaseDownloadProgress: $current/$total")
+                    // Tránh làm đầy log bằng tiến trình download
+                    if (current % 10 == 0L) {
+                        Log.d(TAG, "Database Download: $current/$total")
+                    }
                 }
             })
-        } catch (e: Exception) {
-            Log.e(TAG, "Error during SDK init: ${e.message}")
-            statusTextView.text = "Error: ${e.message}"
-            Toast.makeText(this, "SDK Init Error: ${e.message}", Toast.LENGTH_LONG).show()
+        } catch (e: Throwable) {
+            // Sử dụng Throwable để bắt cả Error (như NoClassDefFoundError)
+            val errorMsg = "CRITICAL ERROR during SDK init: ${e.javaClass.simpleName} - ${e.message}"
+            addLog(errorMsg)
+            e.printStackTrace()
+            runOnUiThread {
+                statusTextView.text = "Crash: ${e.javaClass.simpleName}"
+                Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- DJI Remote Controllers -->
     <usb-accessory manufacturer="DJI" model="DJI RC-N1" />
     <usb-accessory manufacturer="DJI" model="DJI RC-N2" />
     <usb-accessory manufacturer="DJI" model="DJI RC-N3" />
@@ -8,4 +9,13 @@
     <usb-accessory manufacturer="DJI" model="DJI RC Pro" />
     <usb-accessory manufacturer="DJI" model="DJI RC Pro 2" />
     <usb-accessory manufacturer="DJI" model="DJI Smart Controller" />
+    <usb-accessory manufacturer="DJI" model="DJI C5" />
+    <usb-accessory manufacturer="DJI" model="DJI C7" />
+    <usb-accessory manufacturer="DJI" model="DJI C8" />
+    <usb-accessory manufacturer="DJI" model="RC-N1" />
+    <usb-accessory manufacturer="DJI" model="RC-N2" />
+    <usb-accessory manufacturer="DJI" model="RC-N3" />
+    
+    <!-- Generic DJI models often used in SDK -->
+    <usb-accessory manufacturer="DJI" />
 </resources>
