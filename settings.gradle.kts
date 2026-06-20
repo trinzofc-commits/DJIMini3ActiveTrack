@@ -16,4 +16,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "DJIMini3ActiveTrack"
 include(":app")
-app")
