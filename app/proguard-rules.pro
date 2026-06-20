@@ -1,1 +1,17 @@
-# Add project specific ProGuard rules here.\n# By default, the flags in progard-android.txt are applied automatically and should not be modified here.\n# For more details, see\n#   http://developer.android.com/guide/developing/tools/proguard.html
+# DJI SDK V5 ProGuard Rules
+-keep class dji.v5.** { *; }
+-keep interface dji.v5.** { *; }
+-keep enum dji.v5.** { *; }
+
+-keep class dji.sdk.keyvalue.** { *; }
+-keep class dji.v5.manager.** { *; }
+-keep class dji.v5.common.** { *; }
+
+# Keep ML Kit
+-keep class com.google.mlkit.** { *; }
+
+# General Android
+-keepattributes *Annotation*
+-keepattributes Signature
+-keepattributes InnerClasses
+-keepattributes EnclosingMethod

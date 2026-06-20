@@ -16,7 +16,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
-            // DJI SDK V5 supports both, but arm64-v8a is preferred for modern devices
             abiFilters += listOf("arm64-v8a", "armeabi-v7a")
         }
     }
@@ -35,6 +34,10 @@ android {
 
     buildTypes {
         release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        debug {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -57,11 +60,11 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    // DJI SDK V5 - Using implementation for both to ensure they are included in APK
+    // DJI SDK V5 - Correct configuration to avoid VerifyError
+    // 'implementation' for the main SDK
     implementation("com.dji:dji-sdk-v5-aircraft:5.10.0")
-    // Note: 'compileOnly' was likely causing the NoClassDefFoundError because it doesn't include the class in APK
-    // We use implementation for the provided part too if it contains necessary runtime classes
-    implementation("com.dji:dji-sdk-v5-aircraft-provided:5.10.0")
+    // 'compileOnly' for the provided part is CRITICAL for V5 to avoid duplicate classes
+    compileOnly("com.dji:dji-sdk-v5-aircraft-provided:5.10.0")
 
     // Google ML Kit for Object Detection and Tracking
     implementation("com.google.mlkit:object-detection:17.0.1")
